@@ -1,5 +1,5 @@
-exports.up = function(knex) {
-  return knex.schema
+exports.up = async function(knex) {
+  await knex.schema
     .createTable('recipes', (table) => {
         table.increments('recipe_id')
         table.string('recipe_name', 128).unique().notNullable()
@@ -19,8 +19,8 @@ exports.up = function(knex) {
     })
     .createTable('ingredients', (table) => {
         table.increments('ingredients_id')
-        table.string('ingredient_name').unique().notNullable()
-        table.decimal('quantity').notNullable()
+        table.string('ingredient_name', 128).unique().notNullable()
+        table.decimal('quantity_in_oz').notNullable()
         table.integer('recipe_id')
             .unsigned()
             .notNullable()
@@ -29,7 +29,7 @@ exports.up = function(knex) {
             .onDelete('RESTRICT')
             .onUpdate('RESTRICT')
     })
-    .createTable('recipe-steps', (table) => {
+    .createTable('recipe_steps', (table) => {
         table.increments('recipe_steps_id')
         table.integer('step_id')
             .unsigned()
@@ -37,11 +37,11 @@ exports.up = function(knex) {
             .references('steps_id')
             .inTable('steps')
             .onDelete('RESTRICT')
-            .onUpdate('RESTRICT')
+            .onUpdate('CASCADE')
         table.integer('ingredient_id')
             .unsigned()
             .notNullable()
-            .references('ingredient_id')
+            .references('ingredients_id')
             .inTable('ingredients')
             .onDelete('RESTRICT')
             .onUpdate('RESTRICT')
