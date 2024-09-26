@@ -1,0 +1,65 @@
+exports.up = async function(knex) {
+  await knex.schema
+    .createTable('recipes', (table) => {
+        table.increments('recipe_id')
+        table.string('recipe_name', 128).unique().notNullable()
+        table.timestamp('created_at', 128).notNullable()
+    })
+    .createTable('steps', (table) => {
+        table.increments('steps_id')
+        table.integer('step_number').notNullable()
+        table.string('step_instructions', 500).unique().notNullable()
+        table.integer('recipe_id')
+            .unsigned()
+            .notNullable()
+            .references('recipe_id')
+            .inTable('recipes')
+            .onDelete('RESTRICT')
+            .onUpdate('RESTRICT')
+    })
+    .createTable('ingredients', (table) => {
+        table.increments('ingredients_id')
+        table.string('ingredient_name', 128).unique().notNullable()
+        table.decimal('quantity_in_oz').notNullable()
+        table.integer('recipe_id')
+            .unsigned()
+            .notNullable()
+            .references('recipe_id')
+            .inTable('recipes')
+            .onDelete('RESTRICT')
+            .onUpdate('RESTRICT')
+    })
+    .createTable('recipe_steps', (table) => {
+        table.increments('recipe_steps_id')
+        table.integer('step_id')
+            .unsigned()
+            .notNullable()
+            .references('steps_id')
+            .inTable('steps')
+            .onDelete('RESTRICT')
+            .onUpdate('CASCADE')
+        table.integer('ingredient_id')
+            .unsigned()
+            .notNullable()
+            .references('ingredients_id')
+            .inTable('ingredients')
+            .onDelete('RESTRICT')
+            .onUpdate('RESTRICT')
+        table.integer('recipe_id')
+            .unsigned()
+            .notNullable()
+            .references('recipe_id')
+            .inTable('recipes')
+            .onDelete('RESTRICT')
+            .onUpdate('RESTRICT')
+    })
+};
+
+
+exports.down = function(knex) {
+  return knex.schema 
+    .dropTableIfExists('recipe_steps')
+    .dropTableIfExists('ingredients')
+    .dropTableIfExists('steps')
+    .dropTableIfExists('recipes')
+};
